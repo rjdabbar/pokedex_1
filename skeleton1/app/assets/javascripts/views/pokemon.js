@@ -6,5 +6,13 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
     this.$toyDetail = this.$el.find('.toy-detail');
 
     this.pokemon = new Pokedex.Collections.Pokemon();
+  },
+
+  addPokemonToList: function(pokemon) {
+    var html = "<li class=\"poke-list-item\">" +
+      pokemon.get("name") + " -- " +
+      pokemon.get("poke_type") + "</li>";
+    this.$pokeList.append(html);
+
   }
 });

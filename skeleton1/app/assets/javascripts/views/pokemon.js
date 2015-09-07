@@ -8,6 +8,7 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
     this.pokemon = new Pokedex.Collections.Pokemon();
 
     this.$pokeList.on("click", "li", this.selectPokemonFromLst.bind(this));
+    this.$newPoke.on("submit", this.submitPokemonForm.bind(this));
   },
 
   addPokemonToList: function(pokemon) {
@@ -27,10 +28,11 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
   },
 
   renderPokemonDetail: function(pokemon) {
-    var $detail = $("<div class=\"detail\"></div>");
-    var image = "<img src=\"" + pokemon.get("image_url") +
-      "\" alt=\"" + pokemon.get("name") + "\">";
-    $detail.append(image);
+    var $detail = $("<div>").addClass("detail");
+    var $image = $("<img>")
+                .attr("src", pokemon.get("image_url"))
+                .attr("alt", pokemon.get("name"));
+    $detail.append($image);
     var html = "";
     _.each(pokemon.attributes, function(attr) {
       html += "attr: " + attr + "<br>";
@@ -46,15 +48,23 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
     this.renderPokemonDetail(pokemon);
   },
 
-  createPokemon: function(attributes) {
-    this.pokemon.fetch();
+  createPokemon: function(attributes, renderPokemon) {
     var newPokemon = new Pokedex.Models.Pokemon(attributes);
     newPokemon.save({}, {
       success: function(model, response, options) {
         this.pokemon.push(newPokemon);
         this.addPokemonToList(newPokemon);
+        renderPokemon(newPokemon);
       }.bind(this),
       error: function(model, response, options) {}
     });
+  },
+
+  submitPokemonForm: function (e) {
+    e.preventDefault();
+    this.createPokemon(
+      $(e.target).serializeJSON(),
+      this.renderPokemonDetail.bind(this)
+    );
   }
 });

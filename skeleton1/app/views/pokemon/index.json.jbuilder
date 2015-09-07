@@ -1,3 +1,1 @@
-json.array! @pokemon do |pokemon|
-  json.partial! "/pokemon/pokemon", pokemon: pokemon
-end
+json.partial! "/pokemon/pokemon", collection: @pokemon, as: :pokemon

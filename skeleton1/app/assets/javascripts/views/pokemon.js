@@ -13,6 +13,14 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
       pokemon.get("name") + " -- " +
       pokemon.get("poke_type") + "</li>";
     this.$pokeList.append(html);
+  },
 
+  refreshPokemon: function() {
+    this.pokemon.fetch({
+      success: function() {
+        this.pokemon.models.forEach(this.addPokemonToList.bind(this))
+      }.bind(this),
+      error: function () {}
+    });
   }
 });

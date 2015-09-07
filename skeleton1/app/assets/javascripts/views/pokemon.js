@@ -8,7 +8,6 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
 
     this.$pokeList.on("click", "li", this.selectPokemonFromLst.bind(this));
     this.$newPoke.on("submit", this.submitPokemonForm.bind(this));
-
   },
 
   addPokemonToList: function(pokemon) {
@@ -64,8 +63,37 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
     var $image = $("<img>")
                 .attr("src", toy.get("image_url"))
                 .attr("alt", toy.get("name"));
+    var $select = $("<select>")
+                .data("pokemon-id", toy.get("pokemon_id"))
+                .data("toy-id", toy.id);
+
+    this.pokemon.forEach(function(pokemon) {
+      var $option = $("<option>").val(pokemon.id);
+
+      if (pokemon.id === toy.get("pokemon_id")) {
+        $option.attr("selected", "selected");
+      };
+      $option.text(pokemon.get("name"));
+      $select.append($option);
+    })
+
     $detailDiv.html($image);
+    $detailDiv.append($select);
+    $select.on("change", this.reassignToy.bind(this));
     this.$toyDetail.html($detailDiv);
+  },
+
+  reassignToy: function(e) {
+    var oldPokemon = this.pokemon.get($(e.currentTarget).data("pokemon-id"));
+    var toy = oldPokemon.toys().get($(e.currentTarget).data("toy-id"));
+    var newPokemon = this.pokemon.get($(e.currentTarget).find(":selected").val());
+    toy.save({pokemon_id: newPokemon.id}, {
+      success: function(model, response, options) {
+        oldPokemon.toys().remove(toy);
+        this.renderPokemonDetail(oldPokemon);
+        this.$toyDetail.empty();
+      }.bind(this)
+    })
   },
 
   selectToyFromList: function(e) {
